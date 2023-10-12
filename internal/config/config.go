@@ -18,6 +18,9 @@ type Config struct {
 		Address string `yaml:"address"`
 		Port    uint64 `yaml:"port"`
 	} `yaml:"server"`
+	Database struct {
+		Address string `yaml:"address"`
+	} `yaml:"database"`
 	LoggerLvl string `yaml:"logger_level"`
 }
 
