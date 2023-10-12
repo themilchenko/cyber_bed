@@ -19,7 +19,7 @@ func NewAuthHandler(u domain.AuthUsecase) AuthHandler {
 }
 
 func (h AuthHandler) CreateName(c echo.Context) error {
-	name := c.QueryParam("name")
+	name := c.Param("name")
 	if err := h.authUsecase.CreateName(name); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}

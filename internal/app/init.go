@@ -30,11 +30,11 @@ func New(e *echo.Echo, c *config.Config) *Server {
 }
 
 func (s *Server) init() {
-	s.MakeEchoLogger()
-
 	s.MakeUsecases()
 	s.MakeHandlers()
 	s.MakeRouter()
+
+	s.MakeEchoLogger()
 }
 
 func (s *Server) Start() error {
@@ -62,7 +62,7 @@ func (s *Server) MakeRouter() {
 	v1.Use(logger.Middleware())
 	// v1.Use(middleware.Secure())
 
-	v1.POST("/hello", s.authHandler.CreateName)
+	v1.GET("/hello/:name", s.authHandler.CreateName)
 }
 
 func (s *Server) MakeEchoLogger() {

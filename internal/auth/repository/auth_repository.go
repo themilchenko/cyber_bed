@@ -29,7 +29,7 @@ func (db *Postgres) Close() error {
 }
 
 func (db *Postgres) CreateName(name string) error {
-	_, err := db.DB.Exec("INSERT INTO names (name) VALUES $1", name)
+	_, err := db.DB.Exec("INSERT INTO names (name) VALUES ($1)", name)
 	if err != nil {
 		return err
 	}

@@ -15,7 +15,7 @@ func NewAuthUsecase(r domain.AuthRepository) AuthUsecase {
 }
 
 func (u AuthUsecase) CreateName(name string) error {
-	if err := u.CreateName(name); err != nil {
+	if err := u.authRepository.CreateName(name); err != nil {
 		return err
 	}
 	return nil
