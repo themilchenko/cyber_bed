@@ -1,21 +1,17 @@
 package authRepository
 
 import (
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type Postgres struct {
-	DB *sqlx.DB
+	DB *gorm.DB
 }
 
 func NewPostgres(url string) (*Postgres, error) {
-	db, err := sqlx.Open("postgres", url)
+	db, err := gorm.Open(postgres.Open(url), &gorm.Config{})
 	if err != nil {
-		return nil, err
-	}
-
-	if err := db.Ping(); err != nil {
 		return nil, err
 	}
 
@@ -24,14 +20,16 @@ func NewPostgres(url string) (*Postgres, error) {
 	}, nil
 }
 
-func (db *Postgres) Close() error {
-	return db.DB.Close()
-}
-
+// Only for test
 func (db *Postgres) CreateName(name string) error {
-	_, err := db.DB.Exec("INSERT INTO names (name) VALUES ($1)", name)
-	if err != nil {
-		return err
+	type Name struct {
+		Name string
+	}
+	res := db.DB.Table("names").Create(&Name{
+		Name: name,
+	})
+	if res.Error != nil {
+		return res.Error
 	}
 	return nil
 }

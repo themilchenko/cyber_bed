@@ -1,13 +1,14 @@
 package app
 
 import (
-	httpAuth "cyber_bed/internal/auth/delivery"
-	authRepository "cyber_bed/internal/auth/repository"
-	authUsecase "cyber_bed/internal/auth/usecase"
-	"cyber_bed/internal/config"
-	"cyber_bed/internal/domain"
-	logger "cyber_bed/pkg"
 	"strconv"
+
+	httpAuth "github.com/cyber_bed/internal/auth/delivery"
+	authRepository "github.com/cyber_bed/internal/auth/repository"
+	authUsecase "github.com/cyber_bed/internal/auth/usecase"
+	"github.com/cyber_bed/internal/config"
+	"github.com/cyber_bed/internal/domain"
+	logger "github.com/cyber_bed/pkg"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

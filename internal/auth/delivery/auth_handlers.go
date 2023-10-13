@@ -1,9 +1,10 @@
 package httpAuth
 
 import (
-	"cyber_bed/internal/domain"
 	"fmt"
 	"net/http"
+
+	"github.com/cyber_bed/internal/domain"
 
 	"github.com/labstack/echo/v4"
 )

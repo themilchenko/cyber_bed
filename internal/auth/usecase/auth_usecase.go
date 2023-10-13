@@ -1,14 +1,14 @@
 package authUsecase
 
 import (
-	"cyber_bed/internal/domain"
+	"github.com/cyber_bed/internal/domain"
 )
 
 type AuthUsecase struct {
 	authRepository domain.AuthRepository
 }
 
-func NewAuthUsecase(r domain.AuthRepository) AuthUsecase {
+func NewAuthUsecase(r domain.AuthRepository) domain.AuthUsecase {
 	return AuthUsecase{
 		authRepository: r,
 	}

@@ -1,10 +1,11 @@
 package main
 
 import (
-	"cyber_bed/internal/app"
-	"cyber_bed/internal/config"
 	"flag"
 	"log"
+
+	"github.com/cyber_bed/internal/app"
+	"github.com/cyber_bed/internal/config"
 
 	"github.com/labstack/echo/v4"
 )
