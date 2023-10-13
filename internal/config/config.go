@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -18,6 +19,13 @@ type Config struct {
 		Address string `yaml:"address"`
 		Port    uint64 `yaml:"port"`
 	} `yaml:"server"`
+	Database struct {
+		User    string `yaml:"postgres"`
+		DbName  string `yaml:"cyber_garden"`
+		Host    string `yaml:"localhost"`
+		Port    uint64 `yaml:"port"`
+		SslMode string `yaml:"sslmode"`
+	} `yaml:"database"`
 	LoggerLvl string `yaml:"logger_level"`
 }
 
@@ -32,6 +40,25 @@ func New() *Config {
 		}{
 			Address: address,
 			Port:    port,
+		}),
+		Database: struct {
+			User    string `yaml:"postgres"`
+			DbName  string `yaml:"cyber_garden"`
+			Host    string `yaml:"localhost"`
+			Port    uint64 `yaml:"port"`
+			SslMode string `yaml:"sslmode"`
+		}(struct {
+			User    string
+			DbName  string
+			Host    string
+			Port    uint64
+			SslMode string
+		}{
+			User:    "postgres",
+			DbName:  "cyber_garden",
+			Host:    "localhost",
+			Port:    5432,
+			SslMode: "disable",
 		}),
 		LoggerLvl: loggerLevel,
 	}
@@ -49,6 +76,17 @@ func (c *Config) Open(path string) error {
 	}
 
 	return nil
+}
+
+func (c *Config) FormatDbAddr() string {
+	return fmt.Sprintf(
+		"user=%s dbname=%s host=%s port=%d sslmode=%s",
+		c.Database.User,
+		c.Database.DbName,
+		c.Database.Host,
+		c.Database.Port,
+		c.Database.SslMode,
+	)
 }
 
 func ParseFlag(path *string) {
