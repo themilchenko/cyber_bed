@@ -10,7 +10,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	// "github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type Server struct {
@@ -49,7 +49,8 @@ func (s *Server) MakeHandlers() {
 }
 
 func (s *Server) MakeUsecases() {
-	authDB, err := authRepository.NewPostgres(s.Config.Database.Address)
+	pgParams := s.Config.FormatDbAddr()
+	authDB, err := authRepository.NewPostgres(pgParams)
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
@@ -60,7 +61,7 @@ func (s *Server) MakeUsecases() {
 func (s *Server) MakeRouter() {
 	v1 := s.Echo.Group("/api")
 	v1.Use(logger.Middleware())
-	// v1.Use(middleware.Secure())
+	v1.Use(middleware.Secure())
 
 	v1.GET("/hello/:name", s.authHandler.CreateName)
 }

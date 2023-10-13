@@ -18,6 +18,8 @@ func NewAuthHandler(u domain.AuthUsecase) AuthHandler {
 	}
 }
 
+// This handler was added temprorary for checking
+// that postgres is working
 func (h AuthHandler) CreateName(c echo.Context) error {
 	name := c.Param("name")
 	if err := h.authUsecase.CreateName(name); err != nil {
