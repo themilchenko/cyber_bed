@@ -4,5 +4,5 @@ const (
 	SessionTable   = "sessions"
 	UsersTable     = "users"
 	UsersInfoTable = "users_info"
-	PlantsTable    = "plants"
+	PlantsTable    = "user_plants"
 )

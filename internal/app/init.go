@@ -9,6 +9,8 @@ import (
 	authUsecase "github.com/cyber_bed/internal/auth/usecase"
 	"github.com/cyber_bed/internal/config"
 	"github.com/cyber_bed/internal/domain"
+	plantsRepository "github.com/cyber_bed/internal/plants/repository"
+	plantsUsecase "github.com/cyber_bed/internal/plants/usecase"
 	httpUsers "github.com/cyber_bed/internal/users/delivery"
 	usersRepository "github.com/cyber_bed/internal/users/repository"
 	usersUsecase "github.com/cyber_bed/internal/users/usecase"
@@ -22,8 +24,9 @@ type Server struct {
 	Echo   *echo.Echo
 	Config *config.Config
 
-	usersUsecase domain.UsersUsecase
-	authUsecase  domain.AuthUsecase
+	usersUsecase  domain.UsersUsecase
+	authUsecase   domain.AuthUsecase
+	plantsUsecase domain.PlantsUsecase
 
 	usersHandler httpUsers.UsersHandler
 	authHandler  httpAuth.AuthHandler
@@ -71,8 +74,14 @@ func (s *Server) MakeUsecases() {
 		s.Echo.Logger.Error(err)
 	}
 
+	plantsDB, err := plantsRepository.NewPostgres(pgParams)
+	if err != nil {
+		s.Echo.Logger.Error(err)
+	}
+
 	s.authUsecase = authUsecase.NewAuthUsecase(authDB, usersDB)
 	s.usersUsecase = usersUsecase.NewUsersUsecase(usersDB)
+	s.plantsUsecase = plantsUsecase.NewPlansUsecase(plantsDB)
 }
 
 func (s *Server) MakeRouter() {

@@ -14,3 +14,10 @@ CREATE TABLE IF NOT EXISTS sessions (
   user_id BIGSERIAL REFERENCES users(id) ON DELETE CASCADE,
   expire_date TIMESTAMP WITH TIME ZONE NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS user_plants (
+  user_id BIGSERIAL PRIMARY KEY REFERENCES users(id),
+  plants_id BIGINT[] ARRAY
+)
+-- user_id
+-- [id]plants
