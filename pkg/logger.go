@@ -7,8 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ztrue/tracerr"
-
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"github.com/sirupsen/logrus"
@@ -233,21 +231,9 @@ func Middleware() echo.MiddlewareFunc {
 			bytesIn := req.Header.Get(echo.HeaderContentLength)
 
 			if err != nil {
-				errInternal, _ := err.(*echo.HTTPError)
-
-				var trace tracerr.Frame
-
-				if traces := tracerr.StackTrace(errInternal.Internal); len(traces) > 0 {
-					trace = traces[0]
-				} else {
-					trace = tracerr.Frame{}
-				}
 
 				GetInstance().Logrus.WithFields(logrus.Fields{
-					"http_message":  errInternal.Message,
-					"error_code":    errInternal.Code,
-					"error":         errInternal.Internal,
-					"error_cause":   trace,
+					"error":         err,
 					"remote_ip":     c.RealIP(),
 					"host":          req.Host,
 					"uri":           req.RequestURI,

@@ -1,6 +1,6 @@
 module github.com/cyber_bed
 
-go 1.21.3
+go 1.20
 
 require (
 	github.com/labstack/echo/v4 v4.11.2
@@ -13,6 +13,8 @@ require (
 )
 
 require (
+	github.com/albrow/forms v0.3.3 // indirect
+	github.com/carlmjohnson/requests v0.23.5 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -23,6 +25,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect

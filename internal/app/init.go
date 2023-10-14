@@ -1,6 +1,11 @@
 package app
 
 import (
+	domainPlantsAPI "github.com/cyber_bed/internal/plants-api"
+	domainRecognition "github.com/cyber_bed/internal/recognize-api"
+	"github.com/cyber_bed/internal/recognize-api/delivery/http"
+	"github.com/pkg/errors"
+	"net/url"
 	"strconv"
 
 	httpAuth "github.com/cyber_bed/internal/auth/delivery"
@@ -11,6 +16,8 @@ import (
 	"github.com/cyber_bed/internal/domain"
 	plantsRepository "github.com/cyber_bed/internal/plants/repository"
 	plantsUsecase "github.com/cyber_bed/internal/plants/usecase"
+	recAPI "github.com/cyber_bed/internal/recognize-api/repository/api"
+	recUsecase "github.com/cyber_bed/internal/recognize-api/usecase"
 	httpUsers "github.com/cyber_bed/internal/users/delivery"
 	usersRepository "github.com/cyber_bed/internal/users/repository"
 	usersUsecase "github.com/cyber_bed/internal/users/usecase"
@@ -27,9 +34,12 @@ type Server struct {
 	usersUsecase  domain.UsersUsecase
 	authUsecase   domain.AuthUsecase
 	plantsUsecase domain.PlantsUsecase
+	recUsecase    domainRecognition.Usecase
+	plantsAPI     domainPlantsAPI.PlantsAPI
 
 	usersHandler httpUsers.UsersHandler
 	authHandler  httpAuth.AuthHandler
+	recHandler   domainRecognition.Handler
 
 	authMiddleware *authMiddlewares.Middlewares
 }
@@ -59,6 +69,7 @@ func (s *Server) Start() error {
 
 func (s *Server) MakeHandlers() {
 	s.authHandler = httpAuth.NewAuthHandler(s.authUsecase, s.usersUsecase)
+	s.recHandler = http.NewHandler(s.recUsecase)
 }
 
 func (s *Server) MakeUsecases() {
@@ -79,9 +90,31 @@ func (s *Server) MakeUsecases() {
 		s.Echo.Logger.Error(err)
 	}
 
+	u, err := url.Parse(s.Config.RecognizeAPI.BaseURL)
+	if err != nil {
+		s.Echo.Logger.Error(errors.Wrap(err, "failed to parse base url"))
+		return
+	}
+
+	recognitionAPI := recAPI.NewRecognitionAPI(
+		u,
+		s.Config.RecognizeAPI.Token,
+		s.Config.RecognizeAPI.ImageField,
+		s.Config.RecognizeAPI.MaxImages,
+		s.Config.RecognizeAPI.CountResults,
+	)
+
+	if u, err = url.Parse(s.Config.TrefleAPI.BaseURL); err != nil {
+		s.Echo.Logger.Error(errors.Wrap(err, "failed to parse base url"))
+		return
+	}
+
+	s.plantsAPI = domainPlantsAPI.NewTrefleAPI(u, s.Config.TrefleAPI.CountPlants, s.Config.TrefleAPI.Token)
+
 	s.authUsecase = authUsecase.NewAuthUsecase(authDB, usersDB)
 	s.usersUsecase = usersUsecase.NewUsersUsecase(usersDB)
 	s.plantsUsecase = plantsUsecase.NewPlansUsecase(plantsDB)
+	s.recUsecase = recUsecase.New(recognitionAPI, s.plantsAPI)
 }
 
 func (s *Server) MakeRouter() {
@@ -93,6 +126,8 @@ func (s *Server) MakeRouter() {
 	v1.POST("/login", s.authHandler.Login)
 	v1.GET("/auth", s.authHandler.Auth)
 	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
+
+	v1.POST("/recognize", s.recHandler.Recognize)
 }
 
 func (s *Server) makeMiddlewares() {
