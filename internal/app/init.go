@@ -60,7 +60,7 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) MakeHandlers() {
-	s.authHandler = httpAuth.NewAuthHandler(s.authUsecase, s.usersUsecase)
+	s.authHandler = httpAuth.NewAuthHandler(s.authUsecase, s.usersUsecase, *s.Config)
 	s.plantsHandler = httpPlants.NewPlantsHandler(s.plantsUsecase)
 }
 
@@ -82,7 +82,7 @@ func (s *Server) MakeUsecases() {
 		s.Echo.Logger.Error(err)
 	}
 
-	s.authUsecase = authUsecase.NewAuthUsecase(authDB, usersDB)
+	s.authUsecase = authUsecase.NewAuthUsecase(authDB, usersDB, *s.Config)
 	s.usersUsecase = usersUsecase.NewUsersUsecase(usersDB)
 	s.plantsUsecase = plantsUsecase.NewPlansUsecase(plantsDB)
 }
@@ -98,7 +98,7 @@ func (s *Server) MakeRouter() {
 	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
 
 	v1.POST("/add/plant", s.plantsHandler.CreatePlant)
-	v1.GET("/get/plants/:userID", s.plantsHandler.GetPlants)
+	v1.GET("/get/:userID/plants", s.plantsHandler.GetPlants)
 }
 
 func (s *Server) makeMiddlewares() {

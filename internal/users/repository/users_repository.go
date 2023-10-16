@@ -76,6 +76,17 @@ func (db *Postgres) GetByID(id uint64) (models.User, error) {
 	return usr, nil
 }
 
+func (db *Postgres) GetUserIDBySessionID(sessionID string) (uint64, error) {
+	var usrID uint64
+	if err := db.DB.Table(models.SessionTable).
+		Select("user_id").
+		Where("value = ?", sessionID).
+		Scan(&usrID).Error; err != nil {
+		return 0, err
+	}
+	return usrID, nil
+}
+
 func (db *Postgres) GetBySessionID(sessionID string) (models.User, error) {
 	var usr models.User
 	res := db.DB.Table(models.SessionTable).

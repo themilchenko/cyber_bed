@@ -1,9 +1,11 @@
 package authUsecase
 
 import (
-	"errors"
 	"time"
 
+	"github.com/pkg/errors"
+
+	"github.com/cyber_bed/internal/config"
 	"github.com/cyber_bed/internal/crypto"
 	"github.com/cyber_bed/internal/domain"
 	"github.com/cyber_bed/internal/models"
@@ -13,20 +15,31 @@ import (
 type AuthUsecase struct {
 	authRepository   domain.AuthRepository
 	usersRepoisitory domain.UsersRepository
+
+	config config.Config
 }
 
-func NewAuthUsecase(r domain.AuthRepository, u domain.UsersRepository) domain.AuthUsecase {
+func NewAuthUsecase(
+	r domain.AuthRepository,
+	u domain.UsersRepository,
+	c config.Config,
+) domain.AuthUsecase {
 	return AuthUsecase{
 		authRepository:   r,
 		usersRepoisitory: u,
+		config:           c,
 	}
 }
 
 func (u AuthUsecase) generateCookie(userID uint64) models.Cookie {
 	return models.Cookie{
-		UserID:     userID,
-		Value:      uuid.New().String(),
-		ExpireDate: time.Now().AddDate(0, 0, 7),
+		UserID: userID,
+		Value:  uuid.New().String(),
+		ExpireDate: time.Now().AddDate(
+			int(u.config.CookieSettings.ExpireDate.Years),
+			int(u.config.CookieSettings.ExpireDate.Months),
+			int(u.config.CookieSettings.ExpireDate.Days),
+		),
 	}
 }
 
@@ -45,27 +58,26 @@ func (u AuthUsecase) SignUpByID(userID uint64) (string, error) {
 	return session, nil
 }
 
-func (u AuthUsecase) Login(login, password string) (string, error) {
+func (u AuthUsecase) Login(login, password string) (string, uint64, error) {
 	user, err := u.usersRepoisitory.GetByUsername(login)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
 	if !crypto.CheckHash(user.Password, password) {
-		// TODO: Add custom errors
-		return "", errors.New("wrong passord")
+		return "", 0, errors.Wrapf(err, "incorrect password from user with login: %s", login)
 	}
 
 	session, err := u.authRepository.CreateSession(u.generateCookie(user.ID))
 	if err != nil {
-		return "", err
+		return "", 0, errors.Wrapf(err, "failed to create session for user with id: %d", user.ID)
 	}
-	return session, nil
+	return session, user.ID, nil
 }
 
 func (u AuthUsecase) Logout(sessionID string) error {
 	if err := u.authRepository.DeleteBySessionID(sessionID); err != nil {
-		return err
+		return errors.Wrapf(err, "cannot delete session with value: %s", sessionID)
 	}
 	return nil
 }

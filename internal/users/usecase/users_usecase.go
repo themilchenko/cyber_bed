@@ -4,6 +4,7 @@ import (
 	"github.com/cyber_bed/internal/crypto"
 	"github.com/cyber_bed/internal/domain"
 	"github.com/cyber_bed/internal/models"
+	"github.com/pkg/errors"
 )
 
 type UsersUsecase struct {
@@ -17,6 +18,14 @@ func NewUsersUsecase(r domain.UsersRepository) domain.UsersUsecase {
 }
 
 func (u UsersUsecase) CreateUser(user models.User) (uint64, error) {
+	if _, err := u.usersRepository.GetByUsername(user.Username); err == nil {
+		return 0, errors.Wrapf(
+			models.ErrUserExists,
+			"user already exists with username: %s",
+			user.Username,
+		)
+	}
+
 	hash, err := crypto.HashPassword(user.Password)
 	if err != nil {
 		return 0, err
@@ -37,6 +46,14 @@ func (u UsersUsecase) GetBySessionID(sessionID string) (models.User, error) {
 		return models.User{}, err
 	}
 	return user, nil
+}
+
+func (u UsersUsecase) GetUserIDBySessionID(sessionID string) (uint64, error) {
+	usrID, err := u.usersRepository.GetUserIDBySessionID(sessionID)
+	if err != nil {
+		return 0, err
+	}
+	return usrID, nil
 }
 
 func (u UsersUsecase) GetByUsername(username string) (models.User, error) {

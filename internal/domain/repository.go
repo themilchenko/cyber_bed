@@ -12,6 +12,7 @@ type AuthRepository interface {
 type UsersRepository interface {
 	Create(user models.User) (uint64, error)
 
+	GetUserIDBySessionID(sessionID string) (uint64, error)
 	GetByUsername(username string) (models.User, error)
 	GetByID(id uint64) (models.User, error)
 	GetBySessionID(sessionID string) (models.User, error)
