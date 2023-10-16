@@ -18,7 +18,7 @@ type UsersRepository interface {
 }
 
 type PlantsRepository interface {
-	CreateUserPlantsRelations(userID uint64, plantID []uint64) error
-	AddUserPlantsRelations(userID uint64, plantsID []uint64) error
-	GetPlantsByID(userID uint64) ([]uint64, error)
+	CreateUserPlantsRelations(userID uint64, plantID []int64) error
+	AddUserPlantsRelations(userID uint64, plantsID []int64) error
+	GetPlantsByID(userID uint64) (models.UserPlants, error)
 }

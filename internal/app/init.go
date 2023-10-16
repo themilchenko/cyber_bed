@@ -9,6 +9,7 @@ import (
 	authUsecase "github.com/cyber_bed/internal/auth/usecase"
 	"github.com/cyber_bed/internal/config"
 	"github.com/cyber_bed/internal/domain"
+	httpPlants "github.com/cyber_bed/internal/plants/delivery"
 	plantsRepository "github.com/cyber_bed/internal/plants/repository"
 	plantsUsecase "github.com/cyber_bed/internal/plants/usecase"
 	httpUsers "github.com/cyber_bed/internal/users/delivery"
@@ -28,8 +29,9 @@ type Server struct {
 	authUsecase   domain.AuthUsecase
 	plantsUsecase domain.PlantsUsecase
 
-	usersHandler httpUsers.UsersHandler
-	authHandler  httpAuth.AuthHandler
+	usersHandler  httpUsers.UsersHandler
+	authHandler   httpAuth.AuthHandler
+	plantsHandler httpPlants.PlantsHandler
 
 	authMiddleware *authMiddlewares.Middlewares
 }
@@ -59,6 +61,7 @@ func (s *Server) Start() error {
 
 func (s *Server) MakeHandlers() {
 	s.authHandler = httpAuth.NewAuthHandler(s.authUsecase, s.usersUsecase)
+	s.plantsHandler = httpPlants.NewPlantsHandler(s.plantsUsecase)
 }
 
 func (s *Server) MakeUsecases() {
@@ -93,6 +96,9 @@ func (s *Server) MakeRouter() {
 	v1.POST("/login", s.authHandler.Login)
 	v1.GET("/auth", s.authHandler.Auth)
 	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
+
+	v1.POST("/add/plant", s.plantsHandler.CreatePlant)
+	v1.GET("/get/plants/:userID", s.plantsHandler.GetPlants)
 }
 
 func (s *Server) makeMiddlewares() {

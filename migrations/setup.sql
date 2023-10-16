@@ -16,8 +16,6 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 
 CREATE TABLE IF NOT EXISTS user_plants (
-  user_id BIGSERIAL PRIMARY KEY REFERENCES users(id),
-  plants_id BIGINT[] ARRAY
-)
--- user_id
--- [id]plants
+  user_id BIGSERIAL NOT NULL REFERENCES users(id),
+  plants_id BIGINT[]
+);

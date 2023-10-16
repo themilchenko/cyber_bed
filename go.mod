@@ -13,6 +13,7 @@ require (
 )
 
 require (
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -21,6 +22,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/kr/text v0.2.0 // indirect
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
@@ -31,4 +33,6 @@ require (
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
+	gorm.io/datatypes v1.2.0 // indirect
+	gorm.io/driver/mysql v1.4.7 // indirect
 )
