@@ -2,6 +2,7 @@ package plantsRepository
 
 import (
 	"github.com/cyber_bed/internal/models"
+	"github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -21,10 +22,10 @@ func NewPostgres(url string) (*Postgres, error) {
 	}, nil
 }
 
-func (db *Postgres) CreateUserPlantsRelations(userID uint64, plantsID []uint64) error {
+func (db *Postgres) CreateUserPlantsRelations(userID uint64, plantsID []int64) error {
 	res := db.DB.Create(&models.UserPlants{
 		UserID:   userID,
-		PlantIDs: plantsID,
+		PlantsID: pq.Int64Array(plantsID),
 	})
 	if res.Error != nil {
 		return res.Error
@@ -32,20 +33,23 @@ func (db *Postgres) CreateUserPlantsRelations(userID uint64, plantsID []uint64) 
 	return nil
 }
 
-func (db *Postgres) AddUserPlantsRelations(userID uint64, plantsID []uint64) error {
-	var userPlant models.UserPlants
-	if db.DB.Where("user_id = ?", userID).First(&userPlant).Error != nil {
-		userPlant = models.UserPlants{
+func (db *Postgres) AddUserPlantsRelations(userID uint64, plantsID []int64) error {
+	userPlant := []models.UserPlants{}
+	db.DB.Table(models.PlantsTable).Select("*").Where("user_id = ?", userID).Scan(&userPlant)
+
+	if len(userPlant) == 0 {
+		res := db.DB.Table(models.PlantsTable).Create(&models.UserPlants{
 			UserID:   userID,
-			PlantIDs: plantsID,
-		}
-		res := db.DB.Create(&userPlant)
+			PlantsID: pq.Int64Array(plantsID),
+		})
 		if res.Error != nil {
 			return res.Error
 		}
 	} else {
-		newPlantIDs := append(userPlant.PlantIDs, plantsID...)
-		res := db.DB.Model(&userPlant).Update("plants_id", newPlantIDs)
+		newPlantIDs := userPlant[0].PlantsID
+		newPlantIDs = append(newPlantIDs, plantsID...)
+
+		res := db.DB.Table(models.PlantsTable).Where("user_id = ?", userID).Update("plants_id", &newPlantIDs)
 		if res.Error != nil {
 			return res.Error
 		}
@@ -54,13 +58,15 @@ func (db *Postgres) AddUserPlantsRelations(userID uint64, plantsID []uint64) err
 	return nil
 }
 
-func (db *Postgres) GetPlantsByID(userID uint64) ([]uint64, error) {
-	var plantsID []uint64
+func (db *Postgres) GetPlantsByID(userID uint64) (models.UserPlants, error) {
+	var pl models.UserPlants
 	if err := db.DB.Table(models.PlantsTable).
+		Select("*").
 		Where("user_id = ?", userID).
-		Pluck("plants_id", &plantsID).
+		Scan(&pl).
 		Error; err != nil {
-		return nil, err
+		return models.UserPlants{}, err
 	}
-	return plantsID, nil
+
+	return pl, nil
 }

@@ -14,6 +14,7 @@ import (
 	authUsecase "github.com/cyber_bed/internal/auth/usecase"
 	"github.com/cyber_bed/internal/config"
 	"github.com/cyber_bed/internal/domain"
+	httpPlants "github.com/cyber_bed/internal/plants/delivery"
 	plantsRepository "github.com/cyber_bed/internal/plants/repository"
 	plantsUsecase "github.com/cyber_bed/internal/plants/usecase"
 	recAPI "github.com/cyber_bed/internal/recognize-api/repository/api"
@@ -37,9 +38,10 @@ type Server struct {
 	recUsecase    domainRecognition.Usecase
 	plantsAPI     domainPlantsAPI.PlantsAPI
 
-	usersHandler httpUsers.UsersHandler
-	authHandler  httpAuth.AuthHandler
-	recHandler   domainRecognition.Handler
+	usersHandler  httpUsers.UsersHandler
+	authHandler   httpAuth.AuthHandler
+	recHandler    domainRecognition.Handler
+	plantsHandler httpPlants.PlantsHandler
 
 	authMiddleware *authMiddlewares.Middlewares
 }
@@ -68,8 +70,9 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) MakeHandlers() {
-	s.authHandler = httpAuth.NewAuthHandler(s.authUsecase, s.usersUsecase)
 	s.recHandler = http.NewHandler(s.recUsecase)
+	s.authHandler = httpAuth.NewAuthHandler(s.authUsecase, s.usersUsecase, s.Config.CookieSettings)
+	s.plantsHandler = httpPlants.NewPlantsHandler(s.plantsUsecase)
 }
 
 func (s *Server) MakeUsecases() {
@@ -111,7 +114,7 @@ func (s *Server) MakeUsecases() {
 
 	s.plantsAPI = domainPlantsAPI.NewTrefleAPI(u, s.Config.TrefleAPI.CountPlants, s.Config.TrefleAPI.Token)
 
-	s.authUsecase = authUsecase.NewAuthUsecase(authDB, usersDB)
+	s.authUsecase = authUsecase.NewAuthUsecase(authDB, usersDB, s.Config.CookieSettings)
 	s.usersUsecase = usersUsecase.NewUsersUsecase(usersDB)
 	s.plantsUsecase = plantsUsecase.NewPlansUsecase(plantsDB)
 	s.recUsecase = recUsecase.New(recognitionAPI, s.plantsAPI)
@@ -128,6 +131,8 @@ func (s *Server) MakeRouter() {
 	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
 
 	v1.POST("/recognize", s.recHandler.Recognize)
+	v1.POST("/add/plant", s.plantsHandler.CreatePlant)
+	v1.GET("/get/:userID/plants", s.plantsHandler.GetPlants)
 }
 
 func (s *Server) makeMiddlewares() {

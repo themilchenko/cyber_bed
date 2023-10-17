@@ -1,8 +1,12 @@
 package models
 
+import (
+	"github.com/lib/pq"
+)
+
 type UserPlants struct {
-	UserID   uint64   `gorm:"primary_key"`
-	PlantIDs []uint64 `gorm:"type:integer[]"`
+	UserID   uint64
+	PlantsID pq.Int64Array `gorm:"type:integer[]"`
 }
 
 type Plant struct {

@@ -22,29 +22,22 @@ func NewPostgres(url string) (*Postgres, error) {
 }
 
 func (db *Postgres) Create(user models.User) (uint64, error) {
-	usr := models.Username{
+	var usr models.Username
+
+	err := db.DB.Table(models.UsersTable).Create(&models.Username{
 		Username: user.Username,
+	}).Scan(&usr).Error
+	if err != nil {
+		return 0, err
 	}
 
-	res := db.DB.Table(models.UsersTable).Create(&usr)
-	if res.Error != nil {
-		return 0, res.Error
-	}
-
-	// Don't know what happend but if I throw usr.ID
-	// in next sql query directly it's still not updated value
-	// after first query and gorm throws error by this reason.
-	// But when I check usr.ID while debuggind its correct.
-	// So I assign urs.ID to user.ID to solve poblem.
-	user.ID = usr.ID
-
-	res = db.DB.Table(models.UsersInfoTable).Create(models.UsersInfo{
-		UserID:   user.ID,
+	err = db.DB.Table(models.UsersInfoTable).Create(models.UsersInfo{
+		UserID:   usr.ID,
 		Password: user.Password,
 		Avatar:   user.Avatar,
-	})
-	if res.Error != nil {
-		return 0, res.Error
+	}).Error
+	if err != nil {
+		return 0, err
 	}
 
 	return user.ID, nil
@@ -52,39 +45,49 @@ func (db *Postgres) Create(user models.User) (uint64, error) {
 
 func (db *Postgres) GetByUsername(username string) (models.User, error) {
 	var usr models.User
-	res := db.DB.Table(models.UsersTable).Where(&models.Username{
-		Username: username,
-	}).
-		Select("*").
-		Joins("JOIN users_info ON users_info.user_id=users.id").Scan(&usr)
-	if res.Error != nil {
-		return models.User{}, res.Error
+	err := db.DB.Table(models.UsersTable).
+		Select("users.id, users.username, users_info.password, users_info.avatar").
+		Joins("JOIN users_info ON users.id=users_info.user_id").
+		Where("users.username = ?", username).Last(&usr).Error
+	if err != nil {
+		return models.User{}, err
 	}
 	return usr, nil
 }
 
 func (db *Postgres) GetByID(id uint64) (models.User, error) {
 	var usr models.User
-	res := db.DB.Table(models.UsersTable).Where(&models.User{
+	err := db.DB.Table(models.UsersTable).Where(&models.User{
 		ID: id,
 	}).
 		Select("*").
-		Joins("JOIN users_info ON users_info.user_id=users.id").Scan(&usr)
-	if res.Error != nil {
-		return models.User{}, res.Error
+		Joins("JOIN users_info ON users_info.user_id=users.id").Scan(&usr).Error
+	if err != nil {
+		return models.User{}, err
 	}
 	return usr, nil
 }
 
+func (db *Postgres) GetUserIDBySessionID(sessionID string) (uint64, error) {
+	var usrID uint64
+	if err := db.DB.Table(models.SessionTable).
+		Select("user_id").
+		Where("value = ?", sessionID).
+		Scan(&usrID).Error; err != nil {
+		return 0, err
+	}
+	return usrID, nil
+}
+
 func (db *Postgres) GetBySessionID(sessionID string) (models.User, error) {
 	var usr models.User
-	res := db.DB.Table(models.SessionTable).
+	err := db.DB.Table(models.SessionTable).
 		Select("users.id, users.username, users_info.password, users_info.avatar").
 		Where(&models.Cookie{Value: sessionID}).
 		Joins("JOIN users_info ON sessions.user_id=users_info.user_id").
-		Joins("JOIN users ON sessions.user_id=users.id").Scan(&usr)
-	if res.Error != nil {
-		return models.User{}, res.Error
+		Joins("JOIN users ON sessions.user_id=users.id").Scan(&usr).Error
+	if err != nil {
+		return models.User{}, err
 	}
 	return usr, nil
 }

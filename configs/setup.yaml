@@ -22,3 +22,11 @@ trefle_api:
   base_url: "https://trefle.io/api/v1/plants/"
   count_plants: 5
   token: "lFS3BajmCiFb4Qn20NFwLlCg8VGQh8BFboWuratD5qw"
+
+cookie_settings:
+  secure: "true"
+  http_only: "true"
+  expire_date:
+    years: 0
+    months: 0
+    days: 7
