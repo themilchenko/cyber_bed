@@ -55,7 +55,6 @@ func (h AuthHandler) Auth(c echo.Context) error {
 	})
 }
 
-// TODO: By creating user need to check if username already exists
 func (h AuthHandler) SignUp(c echo.Context) error {
 	var recievedUser models.User
 	if err := c.Bind(&recievedUser); err != nil {

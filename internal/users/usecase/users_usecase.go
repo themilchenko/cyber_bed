@@ -5,6 +5,7 @@ import (
 	"github.com/cyber_bed/internal/domain"
 	"github.com/cyber_bed/internal/models"
 	"github.com/pkg/errors"
+	"gorm.io/gorm"
 )
 
 type UsersUsecase struct {
@@ -18,12 +19,15 @@ func NewUsersUsecase(r domain.UsersRepository) domain.UsersUsecase {
 }
 
 func (u UsersUsecase) CreateUser(user models.User) (uint64, error) {
-	if _, err := u.usersRepository.GetByUsername(user.Username); err == nil {
-		return 0, errors.Wrapf(
-			models.ErrUserExists,
-			"user already exists with username: %s",
-			user.Username,
-		)
+	if _, err := u.usersRepository.GetByUsername(user.Username); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, errors.Wrapf(
+				models.GormErrToModel[err],
+				"user already exists with username: %s",
+				user.Username,
+			)
+		}
+		return 0, err
 	}
 
 	hash, err := crypto.HashPassword(user.Password)
