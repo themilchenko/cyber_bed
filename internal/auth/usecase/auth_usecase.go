@@ -16,13 +16,13 @@ type AuthUsecase struct {
 	authRepository   domain.AuthRepository
 	usersRepoisitory domain.UsersRepository
 
-	config config.Config
+	config config.CookieSettings
 }
 
 func NewAuthUsecase(
 	r domain.AuthRepository,
 	u domain.UsersRepository,
-	c config.Config,
+	c config.CookieSettings,
 ) domain.AuthUsecase {
 	return AuthUsecase{
 		authRepository:   r,
@@ -36,9 +36,9 @@ func (u AuthUsecase) generateCookie(userID uint64) models.Cookie {
 		UserID: userID,
 		Value:  uuid.New().String(),
 		ExpireDate: time.Now().AddDate(
-			int(u.config.CookieSettings.ExpireDate.Years),
-			int(u.config.CookieSettings.ExpireDate.Months),
-			int(u.config.CookieSettings.ExpireDate.Days),
+			int(u.config.ExpireDate.Years),
+			int(u.config.ExpireDate.Months),
+			int(u.config.ExpireDate.Days),
 		),
 	}
 }
@@ -76,8 +76,9 @@ func (u AuthUsecase) Login(login, password string) (string, uint64, error) {
 }
 
 func (u AuthUsecase) Logout(sessionID string) error {
-	if err := u.authRepository.DeleteBySessionID(sessionID); err != nil {
-		return errors.Wrapf(err, "cannot delete session with value: %s", sessionID)
-	}
-	return nil
+	return errors.Wrapf(
+		u.authRepository.DeleteBySessionID(sessionID),
+		"failed to delete user by session id %s",
+		sessionID,
+	)
 }

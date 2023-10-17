@@ -15,14 +15,18 @@ type AuthHandler struct {
 	authUsecase  domain.AuthUsecase
 	usersUsecase domain.UsersUsecase
 
-	config config.Config
+	cookieConfig config.CookieSettings
 }
 
-func NewAuthHandler(a domain.AuthUsecase, u domain.UsersUsecase, c config.Config) AuthHandler {
+func NewAuthHandler(
+	a domain.AuthUsecase,
+	u domain.UsersUsecase,
+	c config.CookieSettings,
+) AuthHandler {
 	return AuthHandler{
 		authUsecase:  a,
 		usersUsecase: u,
-		config:       c,
+		cookieConfig: c,
 	}
 }
 
@@ -38,7 +42,12 @@ func (h AuthHandler) Auth(c echo.Context) error {
 	}
 
 	if err = h.authUsecase.Auth(cookie.Value); err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized, err)
+		// If session doesn't exist, create this
+		sessionID, err := h.authUsecase.SignUpByID(userID)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusUnauthorized, err)
+		}
+		c.SetCookie(h.makeHTTPCookie(sessionID))
 	}
 
 	return c.JSON(http.StatusOK, models.UserID{

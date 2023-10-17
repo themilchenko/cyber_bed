@@ -27,15 +27,17 @@ type Config struct {
 		SslMode string `yaml:"sslmode"`
 	} `yaml:"database"`
 	LoggerLvl      string `yaml:"logger_level"`
-	CookieSettings struct {
-		Secure     bool `yaml:"secure"`
-		HttpOnly   bool `yaml:"http_only"`
-		ExpireDate struct {
-			Years  uint64 `yaml:"years"`
-			Months uint64 `yaml:"months"`
-			Days   uint64 `yaml:"days"`
-		} `yaml:"expire_date"`
-	}
+	CookieSettings CookieSettings
+}
+
+type CookieSettings struct {
+	Secure     bool `yaml:"secure"`
+	HttpOnly   bool `yaml:"http_only"`
+	ExpireDate struct {
+		Years  uint64 `yaml:"years"`
+		Months uint64 `yaml:"months"`
+		Days   uint64 `yaml:"days"`
+	} `yaml:"expire_date"`
 }
 
 func New() *Config {

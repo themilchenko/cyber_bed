@@ -60,7 +60,7 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) MakeHandlers() {
-	s.authHandler = httpAuth.NewAuthHandler(s.authUsecase, s.usersUsecase, *s.Config)
+	s.authHandler = httpAuth.NewAuthHandler(s.authUsecase, s.usersUsecase, s.Config.CookieSettings)
 	s.plantsHandler = httpPlants.NewPlantsHandler(s.plantsUsecase)
 }
 
@@ -82,7 +82,7 @@ func (s *Server) MakeUsecases() {
 		s.Echo.Logger.Error(err)
 	}
 
-	s.authUsecase = authUsecase.NewAuthUsecase(authDB, usersDB, *s.Config)
+	s.authUsecase = authUsecase.NewAuthUsecase(authDB, usersDB, s.Config.CookieSettings)
 	s.usersUsecase = usersUsecase.NewUsersUsecase(usersDB)
 	s.plantsUsecase = plantsUsecase.NewPlansUsecase(plantsDB)
 }

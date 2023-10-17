@@ -16,11 +16,11 @@ func (h AuthHandler) makeHTTPCookie(sessionID string) *http.Cookie {
 		Name:  cookieName,
 		Value: sessionID,
 		Expires: time.Now().
-			AddDate(int(h.config.CookieSettings.ExpireDate.Years),
-				int(h.config.CookieSettings.ExpireDate.Months),
-				int(h.config.CookieSettings.ExpireDate.Days)),
-		Secure:   h.config.CookieSettings.Secure,
-		HttpOnly: h.config.CookieSettings.HttpOnly,
+			AddDate(int(h.cookieConfig.ExpireDate.Years),
+				int(h.cookieConfig.ExpireDate.Months),
+				int(h.cookieConfig.ExpireDate.Days)),
+		Secure:   h.cookieConfig.Secure,
+		HttpOnly: h.cookieConfig.HttpOnly,
 		SameSite: http.SameSiteNoneMode,
 	}
 }
