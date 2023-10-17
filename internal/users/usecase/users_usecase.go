@@ -22,7 +22,7 @@ func (u UsersUsecase) CreateUser(user models.User) (uint64, error) {
 	if _, err := u.usersRepository.GetByUsername(user.Username); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return 0, errors.Wrapf(
-				models.GormErrToModel[err],
+				models.ErrUserExists,
 				"user already exists with username: %s",
 				user.Username,
 			)
