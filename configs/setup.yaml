@@ -3,13 +3,25 @@ server:
   port: 8080
 
 database:
-  user: "postgres"
+  user: "al.kashapov"
   dbname: "cyber_garden"
   host: "localhost"
   port: 5432
   sslmode: "disable"
 
 logger_level: "debug"
+
+recognize_api:
+  max_images: 5
+  base_url: "https://my-api.plantnet.org/v2/identify/"
+  count_results: 5
+  image_field: "images"
+  token: "2b109QtPNL155fUgf3usDHvsk"
+
+trefle_api:
+  base_url: "https://trefle.io/api/v1/plants/"
+  count_plants: 5
+  token: "lFS3BajmCiFb4Qn20NFwLlCg8VGQh8BFboWuratD5qw"
 
 cookie_settings:
   secure: "true"

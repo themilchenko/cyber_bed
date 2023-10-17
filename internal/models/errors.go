@@ -1,10 +1,9 @@
 package models
 
-import (
-	"errors"
-)
+import "github.com/pkg/errors"
 
 var (
-	ErrUserExists = errors.New("user already exists")
-	ErrNotFound   = errors.New("user not found")
+	ErrNoImages      = errors.New("no images provided")
+	ErrTooManyImages = errors.New("too many images")
+	ErrUserExists    = errors.New("user already exists")
 )

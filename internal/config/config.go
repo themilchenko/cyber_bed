@@ -20,13 +20,25 @@ type Config struct {
 		Port    uint64 `yaml:"port"`
 	} `yaml:"server"`
 	Database struct {
-		User    string `yaml:"postgres"`
-		DbName  string `yaml:"cyber_garden"`
-		Host    string `yaml:"localhost"`
+		User    string `yaml:"user"`
+		DbName  string `yaml:"dbname"`
+		Host    string `yaml:"host"`
 		Port    uint64 `yaml:"port"`
 		SslMode string `yaml:"sslmode"`
 	} `yaml:"database"`
-	LoggerLvl      string `yaml:"logger_level"`
+	LoggerLvl    string `yaml:"logger_level"`
+	RecognizeAPI struct {
+		MaxImages    int    `yaml:"max_images"`
+		BaseURL      string `yaml:"base_url"`
+		CountResults int    `yaml:"count_results"`
+		ImageField   string `yaml:"image_field"`
+		Token        string `yaml:"token"`
+	} `yaml:"recognize_api"`
+	TrefleAPI struct {
+		BaseURL     string `yaml:"base_url"`
+		CountPlants int    `yaml:"count_plants"`
+		Token       string `yaml:"token"`
+	} `yaml:"trefle_api"`
 	CookieSettings CookieSettings
 }
 
@@ -53,9 +65,9 @@ func New() *Config {
 			Port:    port,
 		}),
 		Database: struct {
-			User    string `yaml:"postgres"`
-			DbName  string `yaml:"cyber_garden"`
-			Host    string `yaml:"localhost"`
+			User    string `yaml:"user"`
+			DbName  string `yaml:"dbname"`
+			Host    string `yaml:"host"`
 			Port    uint64 `yaml:"port"`
 			SslMode string `yaml:"sslmode"`
 		}(struct {
@@ -72,6 +84,38 @@ func New() *Config {
 			SslMode: "disable",
 		}),
 		LoggerLvl: loggerLevel,
+		RecognizeAPI: struct {
+			MaxImages    int    `yaml:"max_images"`
+			BaseURL      string `yaml:"base_url"`
+			CountResults int    `yaml:"count_results"`
+			ImageField   string `yaml:"image_field"`
+			Token        string `yaml:"token"`
+		}(struct {
+			MaxImages    int
+			BaseURL      string
+			CountResults int
+			ImageField   string
+			Token        string
+		}{
+			MaxImages:    5,
+			BaseURL:      "https://my-api.plantnet.org/v2/identify/",
+			CountResults: 4,
+			ImageField:   "images[]",
+			Token:        "token",
+		}),
+		TrefleAPI: struct {
+			BaseURL     string `yaml:"base_url"`
+			CountPlants int    `yaml:"count_plants"`
+			Token       string `yaml:"token"`
+		}(struct {
+			BaseURL     string
+			CountPlants int
+			Token       string
+		}{
+			BaseURL:     "https://{defaultHost}/api/v1/plants/",
+			CountPlants: 5,
+			Token:       "token",
+		}),
 		CookieSettings: struct {
 			Secure     bool `yaml:"secure"`
 			HttpOnly   bool `yaml:"http_only"`

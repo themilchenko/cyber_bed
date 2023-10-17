@@ -12,6 +12,7 @@ type UserPlants struct {
 type Plant struct {
 	UserID     uint64 `json:"userID"`
 	ID         uint64 `json:"id"`
+	ExternalID uint64 `json:"external_id"`
 	CommonName string `json:"commonName"`
 	ImageUrl   string `json:"imageUrl"`
 }
