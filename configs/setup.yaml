@@ -10,3 +10,11 @@ database:
   sslmode: "disable"
 
 logger_level: "debug"
+
+cookie_settings:
+  secure: "true"
+  http_only: "true"
+  expire_date:
+    years: 0
+    months: 0
+    days: 7

@@ -1,6 +1,7 @@
 package authRepository
 
 import (
+	"github.com/cyber_bed/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -20,16 +21,20 @@ func NewPostgres(url string) (*Postgres, error) {
 	}, nil
 }
 
-// Only for test
-func (db *Postgres) CreateName(name string) error {
-	type Name struct {
-		Name string
-	}
-	res := db.DB.Table("names").Create(&Name{
-		Name: name,
-	})
+func (db *Postgres) CreateSession(cookie models.Cookie) (string, error) {
+	res := db.DB.Table(models.SessionTable).Create(&cookie)
 	if res.Error != nil {
-		return res.Error
+		return "", res.Error
+	}
+	return cookie.Value, nil
+}
+
+func (db *Postgres) DeleteBySessionID(sessionID string) error {
+	if err := db.DB.Table(models.SessionTable).
+		Where("value = ?", sessionID).
+		Delete(&models.Cookie{}).
+		Error; err != nil {
+		return err
 	}
 	return nil
 }

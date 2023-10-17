@@ -26,7 +26,18 @@ type Config struct {
 		Port    uint64 `yaml:"port"`
 		SslMode string `yaml:"sslmode"`
 	} `yaml:"database"`
-	LoggerLvl string `yaml:"logger_level"`
+	LoggerLvl      string `yaml:"logger_level"`
+	CookieSettings CookieSettings
+}
+
+type CookieSettings struct {
+	Secure     bool `yaml:"secure"`
+	HttpOnly   bool `yaml:"http_only"`
+	ExpireDate struct {
+		Years  uint64 `yaml:"years"`
+		Months uint64 `yaml:"months"`
+		Days   uint64 `yaml:"days"`
+	} `yaml:"expire_date"`
 }
 
 func New() *Config {
@@ -61,6 +72,35 @@ func New() *Config {
 			SslMode: "disable",
 		}),
 		LoggerLvl: loggerLevel,
+		CookieSettings: struct {
+			Secure     bool `yaml:"secure"`
+			HttpOnly   bool `yaml:"http_only"`
+			ExpireDate struct {
+				Years  uint64 `yaml:"years"`
+				Months uint64 `yaml:"months"`
+				Days   uint64 `yaml:"days"`
+			} `yaml:"expire_date"`
+		}(struct {
+			Secure     bool
+			HttpOnly   bool
+			ExpireDate struct {
+				Years  uint64
+				Months uint64
+				Days   uint64
+			}
+		}{
+			Secure:   true,
+			HttpOnly: true,
+			ExpireDate: struct {
+				Years  uint64
+				Months uint64
+				Days   uint64
+			}{
+				Years:  0,
+				Months: 0,
+				Days:   7,
+			},
+		}),
 	}
 }
 

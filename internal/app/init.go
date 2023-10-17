@@ -4,10 +4,17 @@ import (
 	"strconv"
 
 	httpAuth "github.com/cyber_bed/internal/auth/delivery"
+	authMiddlewares "github.com/cyber_bed/internal/auth/delivery/middleware"
 	authRepository "github.com/cyber_bed/internal/auth/repository"
 	authUsecase "github.com/cyber_bed/internal/auth/usecase"
 	"github.com/cyber_bed/internal/config"
 	"github.com/cyber_bed/internal/domain"
+	httpPlants "github.com/cyber_bed/internal/plants/delivery"
+	plantsRepository "github.com/cyber_bed/internal/plants/repository"
+	plantsUsecase "github.com/cyber_bed/internal/plants/usecase"
+	httpUsers "github.com/cyber_bed/internal/users/delivery"
+	usersRepository "github.com/cyber_bed/internal/users/repository"
+	usersUsecase "github.com/cyber_bed/internal/users/usecase"
 	logger "github.com/cyber_bed/pkg"
 
 	"github.com/labstack/echo/v4"
@@ -18,9 +25,15 @@ type Server struct {
 	Echo   *echo.Echo
 	Config *config.Config
 
-	authUsecase domain.AuthUsecase
+	usersUsecase  domain.UsersUsecase
+	authUsecase   domain.AuthUsecase
+	plantsUsecase domain.PlantsUsecase
 
-	authHandler httpAuth.AuthHandler
+	usersHandler  httpUsers.UsersHandler
+	authHandler   httpAuth.AuthHandler
+	plantsHandler httpPlants.PlantsHandler
+
+	authMiddleware *authMiddlewares.Middlewares
 }
 
 func New(e *echo.Echo, c *config.Config) *Server {
@@ -32,6 +45,7 @@ func New(e *echo.Echo, c *config.Config) *Server {
 
 func (s *Server) init() {
 	s.MakeUsecases()
+	s.makeMiddlewares()
 	s.MakeHandlers()
 	s.MakeRouter()
 
@@ -46,17 +60,31 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) MakeHandlers() {
-	s.authHandler = httpAuth.NewAuthHandler(s.authUsecase)
+	s.authHandler = httpAuth.NewAuthHandler(s.authUsecase, s.usersUsecase, s.Config.CookieSettings)
+	s.plantsHandler = httpPlants.NewPlantsHandler(s.plantsUsecase)
 }
 
 func (s *Server) MakeUsecases() {
 	pgParams := s.Config.FormatDbAddr()
+
 	authDB, err := authRepository.NewPostgres(pgParams)
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
 
-	s.authUsecase = authUsecase.NewAuthUsecase(authDB)
+	usersDB, err := usersRepository.NewPostgres(pgParams)
+	if err != nil {
+		s.Echo.Logger.Error(err)
+	}
+
+	plantsDB, err := plantsRepository.NewPostgres(pgParams)
+	if err != nil {
+		s.Echo.Logger.Error(err)
+	}
+
+	s.authUsecase = authUsecase.NewAuthUsecase(authDB, usersDB, s.Config.CookieSettings)
+	s.usersUsecase = usersUsecase.NewUsersUsecase(usersDB)
+	s.plantsUsecase = plantsUsecase.NewPlansUsecase(plantsDB)
 }
 
 func (s *Server) MakeRouter() {
@@ -64,7 +92,17 @@ func (s *Server) MakeRouter() {
 	v1.Use(logger.Middleware())
 	v1.Use(middleware.Secure())
 
-	v1.GET("/hello/:name", s.authHandler.CreateName)
+	v1.POST("/signup", s.authHandler.SignUp)
+	v1.POST("/login", s.authHandler.Login)
+	v1.GET("/auth", s.authHandler.Auth)
+	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
+
+	v1.POST("/add/plant", s.plantsHandler.CreatePlant)
+	v1.GET("/get/:userID/plants", s.plantsHandler.GetPlants)
+}
+
+func (s *Server) makeMiddlewares() {
+	s.authMiddleware = authMiddlewares.New(s.authUsecase, s.usersUsecase)
 }
 
 func (s *Server) MakeEchoLogger() {
