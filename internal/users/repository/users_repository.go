@@ -1,9 +1,10 @@
 package usersRepository
 
 import (
-	"github.com/cyber_bed/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/cyber_bed/internal/models"
 )
 
 type Postgres struct {
@@ -40,7 +41,7 @@ func (db *Postgres) Create(user models.User) (uint64, error) {
 		return 0, err
 	}
 
-	return user.ID, nil
+	return usr.ID, nil
 }
 
 func (db *Postgres) GetByUsername(username string) (models.User, error) {
@@ -69,14 +70,14 @@ func (db *Postgres) GetByID(id uint64) (models.User, error) {
 }
 
 func (db *Postgres) GetUserIDBySessionID(sessionID string) (uint64, error) {
-	var usrID uint64
+	var usrID models.Cookie
 	if err := db.DB.Table(models.SessionTable).
-		Select("user_id").
 		Where("value = ?", sessionID).
-		Scan(&usrID).Error; err != nil {
+		Select("user_id").
+		Last(&usrID).Error; err != nil {
 		return 0, err
 	}
-	return usrID, nil
+	return usrID.UserID, nil
 }
 
 func (db *Postgres) GetBySessionID(sessionID string) (models.User, error) {

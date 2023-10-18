@@ -1,10 +1,11 @@
 package plantsRepository
 
 import (
-	"github.com/cyber_bed/internal/models"
 	"github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/cyber_bed/internal/models"
 )
 
 type Postgres struct {
@@ -69,4 +70,13 @@ func (db *Postgres) GetPlantsByID(userID uint64) (models.UserPlants, error) {
 	}
 
 	return pl, nil
+}
+
+func (db *Postgres) UpdateUserPlantsRelation(relation models.UserPlants) error {
+	if err := db.DB.Table(models.PlantsTable).
+		Where("user_id = ?", relation.UserID).
+		Update("plants_id", &relation.PlantsID).Error; err != nil {
+		return err
+	}
+	return nil
 }
