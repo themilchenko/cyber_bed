@@ -2,16 +2,20 @@ package plants_api
 
 import (
 	"context"
-	"github.com/carlmjohnson/requests"
-	"github.com/cyber_bed/internal/api/convert"
-	"github.com/cyber_bed/internal/models"
-	"github.com/pkg/errors"
 	"net/http"
 	"net/url"
+	"strconv"
+
+	"github.com/carlmjohnson/requests"
+	"github.com/pkg/errors"
+
+	"github.com/cyber_bed/internal/api/convert"
+	"github.com/cyber_bed/internal/models"
 )
 
 type PlantsAPI interface {
-	Search(ctx context.Context, name string) ([]models.Plant, error)
+	SearchByName(ctx context.Context, name string) ([]models.Plant, error)
+	SearchByID(ctx context.Context, id uint64) (models.Plant, error)
 }
 
 type TrefleAPI struct {
@@ -32,7 +36,7 @@ func NewTrefleAPI(baseURL *url.URL, countResults int, token string) PlantsAPI {
 	}
 }
 
-func (t *TrefleAPI) Search(
+func (t *TrefleAPI) SearchByName(
 	ctx context.Context,
 	name string,
 ) ([]models.Plant, error) {
@@ -43,7 +47,7 @@ func (t *TrefleAPI) Search(
 	u.RawQuery = q.Encode()
 	apiURL := u.JoinPath("search")
 
-	var resp models.SearchResponse
+	var resp models.SearchSliceResponse
 
 	if err := requests.
 		URL(apiURL.String()).
@@ -54,4 +58,21 @@ func (t *TrefleAPI) Search(
 	}
 
 	return convert.InputSearchResultsToModels(resp, t.countResults), nil
+}
+
+func (t *TrefleAPI) SearchByID(ctx context.Context, id uint64) (models.Plant, error) {
+	u := t.baseURL
+	q := u.Query()
+	u.RawQuery = q.Encode()
+	apiURL := u.JoinPath(strconv.FormatUint(id, 10)).String()
+
+	var resp models.SearchResponse
+	if err := requests.
+		URL(apiURL).
+		Method(http.MethodGet).
+		ToJSON(&resp).
+		Fetch(ctx); err != nil {
+		return models.Plant{}, errors.Wrap(err, "failed to search plant by id")
+	}
+	return convert.SearchItemToPlantModel(resp.Data), nil
 }

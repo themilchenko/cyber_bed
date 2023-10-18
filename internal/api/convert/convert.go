@@ -20,7 +20,7 @@ func InputRecognitionResultsToModels(results models.RecResponse, count int) []mo
 	return plants
 }
 
-func InputSearchResultsToModels(results models.SearchResponse, count int) []models.Plant {
+func InputSearchResultsToModels(results models.SearchSliceResponse, count int) []models.Plant {
 	plants := make([]models.Plant, 0)
 	counter := 0
 
@@ -29,13 +29,17 @@ func InputSearchResultsToModels(results models.SearchResponse, count int) []mode
 			break
 		}
 
-		plants = append(plants, models.Plant{
-			ExternalID: uint64(result.ID),
-			CommonName: result.ScName,
-			ImageUrl:   result.ImageURL,
-		})
+		plants = append(plants, SearchItemToPlantModel(result))
 		counter++
 	}
 
 	return plants
+}
+
+func SearchItemToPlantModel(res models.ItemPlantResponse) models.Plant {
+	return models.Plant{
+		ExternalID: uint64(res.ID),
+		CommonName: res.ScName,
+		ImageUrl:   res.ImageURL,
+	}
 }

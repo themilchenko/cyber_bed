@@ -72,7 +72,7 @@ func (s *Server) Start() error {
 func (s *Server) MakeHandlers() {
 	s.recHandler = http.NewHandler(s.recUsecase)
 	s.authHandler = httpAuth.NewAuthHandler(s.authUsecase, s.usersUsecase, s.Config.CookieSettings)
-	s.plantsHandler = httpPlants.NewPlantsHandler(s.plantsUsecase, s.usersUsecase)
+	s.plantsHandler = httpPlants.NewPlantsHandler(s.plantsUsecase, s.usersUsecase, s.plantsAPI)
 }
 
 func (s *Server) MakeUsecases() {
@@ -135,6 +135,10 @@ func (s *Server) MakeRouter() {
 	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
 
 	v1.POST("/recognize", s.recHandler.Recognize)
+
+	plantsAPI := v1.Group("/search")
+	plantsAPI.GET("/plant/:plantID", s.plantsHandler.GetPlantFromAPI)
+	plantsAPI.GET("/plants", s.plantsHandler.GetPlantsFromAPI)
 
 	plants := v1.Group("/plants", s.authMiddleware.LoginRequired)
 	plants.GET("/:plantID", s.plantsHandler.GetPlant)

@@ -9,18 +9,43 @@ import (
 	httpAuth "github.com/cyber_bed/internal/auth/delivery"
 	"github.com/cyber_bed/internal/domain"
 	"github.com/cyber_bed/internal/models"
+	plants_api "github.com/cyber_bed/internal/plants-api"
 )
 
 type PlantsHandler struct {
 	plantsUsecase domain.PlantsUsecase
 	usersUsecase  domain.UsersUsecase
+	trefleAPI     plants_api.PlantsAPI
 }
 
-func NewPlantsHandler(p domain.PlantsUsecase, u domain.UsersUsecase) PlantsHandler {
+func NewPlantsHandler(
+	p domain.PlantsUsecase,
+	u domain.UsersUsecase,
+	pl plants_api.PlantsAPI,
+) PlantsHandler {
 	return PlantsHandler{
 		plantsUsecase: p,
 		usersUsecase:  u,
+		trefleAPI:     pl,
 	}
+}
+
+func (h PlantsHandler) GetPlantFromAPI(c echo.Context) error {
+	plantID, err := strconv.ParseUint(c.Param("plantID"), 10, 64)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	plant, err := h.trefleAPI.SearchByID(c.Request().Context(), plantID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err)
+	}
+
+	return c.JSON(http.StatusOK, plant)
+}
+
+func (h PlantsHandler) GetPlantsFromAPI(c echo.Context) error {
+	return nil
 }
 
 func (h PlantsHandler) CreatePlant(c echo.Context) error {
