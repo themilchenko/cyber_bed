@@ -9,7 +9,6 @@ type User struct {
 	ID       uint64 `json:"userID"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Avatar   string `json:"avatar"`
 }
 
 type Username struct {
@@ -20,7 +19,6 @@ type Username struct {
 type UsersInfo struct {
 	UserID   uint64
 	Password string
-	Avatar   string
 }
 
 type UserID struct {
