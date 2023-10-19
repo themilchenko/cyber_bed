@@ -45,7 +45,17 @@ func (h PlantsHandler) GetPlantFromAPI(c echo.Context) error {
 }
 
 func (h PlantsHandler) GetPlantsFromAPI(c echo.Context) error {
-	return nil
+	pageNum, err := strconv.ParseUint(c.QueryParam("page"), 10, 64)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	plants, err := h.trefleAPI.GetPage(c.Request().Context(), pageNum)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err)
+	}
+
+	return c.JSON(http.StatusOK, plants)
 }
 
 func (h PlantsHandler) CreatePlant(c echo.Context) error {

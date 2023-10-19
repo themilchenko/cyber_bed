@@ -137,7 +137,7 @@ func (s *Server) MakeRouter() {
 	v1.POST("/recognize", s.recHandler.Recognize)
 
 	plantsAPI := v1.Group("/search")
-	plantsAPI.GET("/plant/:plantID", s.plantsHandler.GetPlantFromAPI)
+	plantsAPI.GET("/plants/:plantID", s.plantsHandler.GetPlantFromAPI)
 	plantsAPI.GET("/plants", s.plantsHandler.GetPlantsFromAPI)
 
 	plants := v1.Group("/plants", s.authMiddleware.LoginRequired)

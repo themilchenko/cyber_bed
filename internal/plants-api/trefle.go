@@ -16,6 +16,7 @@ import (
 type PlantsAPI interface {
 	SearchByName(ctx context.Context, name string) ([]models.Plant, error)
 	SearchByID(ctx context.Context, id uint64) (models.Plant, error)
+	GetPage(ctx context.Context, pageNum uint64) ([]models.Plant, error)
 }
 
 type TrefleAPI struct {
@@ -75,4 +76,22 @@ func (t *TrefleAPI) SearchByID(ctx context.Context, id uint64) (models.Plant, er
 		return models.Plant{}, errors.Wrap(err, "failed to search plant by id")
 	}
 	return convert.SearchItemToPlantModel(resp.Data), nil
+}
+
+func (t *TrefleAPI) GetPage(ctx context.Context, pageNum uint64) ([]models.Plant, error) {
+	u := t.baseURL
+	q := u.Query()
+	q.Set("page", strconv.FormatUint(pageNum, 10))
+
+	u.RawQuery = q.Encode()
+
+	var resp models.SearchSliceResponse
+	if err := requests.
+		URL(u.String()).
+		Method(http.MethodGet).
+		ToJSON(&resp).
+		Fetch(ctx); err != nil {
+		return nil, errors.Wrap(err, "failed to get page")
+	}
+	return convert.InputSearchResultsToModels(resp, t.countResults), nil
 }
