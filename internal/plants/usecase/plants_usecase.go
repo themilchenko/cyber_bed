@@ -50,8 +50,6 @@ func (u PlantsUsecase) GetPlant(userID uint64, plantID int64) (models.Plant, err
 		)
 	}
 
-	// Go to plant service
-
 	return models.Plant{
 		ID:     uint64(plantID),
 		UserID: plants.UserID,
@@ -71,8 +69,6 @@ func (u PlantsUsecase) GetPlants(userID uint64) ([]models.Plant, error) {
 			ID: uint64(p),
 		})
 	}
-
-	// Here we will go to plants service
 
 	return plants, nil
 }

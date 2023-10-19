@@ -30,6 +30,10 @@ func NewPlantsHandler(
 	}
 }
 
+// ================================================
+// Handlers for handling requests with external API
+// ================================================
+
 func (h PlantsHandler) GetPlantFromAPI(c echo.Context) error {
 	plantID, err := strconv.ParseUint(c.Param("plantID"), 10, 64)
 	if err != nil {
@@ -57,6 +61,10 @@ func (h PlantsHandler) GetPlantsFromAPI(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, plants)
 }
+
+// ===============================================
+// Handlers for handling authorized users requests
+// ===============================================
 
 func (h PlantsHandler) CreatePlant(c echo.Context) error {
 	cookie, err := httpAuth.GetCookie(c)
@@ -112,6 +120,11 @@ func (h PlantsHandler) GetPlant(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
+	plant, err = h.trefleAPI.SearchByID(c.Request().Context(), plant.ID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err)
+	}
+
 	return c.JSON(http.StatusOK, plant)
 }
 
@@ -129,6 +142,13 @@ func (h PlantsHandler) GetPlants(c echo.Context) error {
 	plants, err := h.plantsUsecase.GetPlants(userID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	for index, pl := range plants {
+		plants[index], err = h.trefleAPI.SearchByID(c.Request().Context(), pl.ID)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusNotFound, err)
+		}
 	}
 
 	return c.JSON(http.StatusOK, plants)
