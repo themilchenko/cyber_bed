@@ -14,7 +14,7 @@ import (
 	authUsecase "github.com/cyber_bed/internal/auth/usecase"
 	"github.com/cyber_bed/internal/config"
 	"github.com/cyber_bed/internal/domain"
-	domainPlantsAPI "github.com/cyber_bed/internal/plants-api"
+	domainTrefleAPI "github.com/cyber_bed/internal/plants-api"
 	httpPlants "github.com/cyber_bed/internal/plants/delivery"
 	plantsRepository "github.com/cyber_bed/internal/plants/repository"
 	plantsUsecase "github.com/cyber_bed/internal/plants/usecase"
@@ -36,7 +36,7 @@ type Server struct {
 	authUsecase   domain.AuthUsecase
 	plantsUsecase domain.PlantsUsecase
 	recUsecase    domainRecognition.Usecase
-	plantsAPI     domainPlantsAPI.PlantsAPI
+	plantsAPI     domain.PlantsAPI
 
 	usersHandler  httpUsers.UsersHandler
 	authHandler   httpAuth.AuthHandler
@@ -112,7 +112,7 @@ func (s *Server) MakeUsecases() {
 		return
 	}
 
-	s.plantsAPI = domainPlantsAPI.NewTrefleAPI(
+	s.plantsAPI = domainTrefleAPI.NewTrefleAPI(
 		u,
 		s.Config.TrefleAPI.CountPlants,
 		s.Config.TrefleAPI.Token,

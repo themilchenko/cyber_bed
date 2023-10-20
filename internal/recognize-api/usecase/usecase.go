@@ -6,19 +6,19 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/cyber_bed/internal/domain"
 	"github.com/cyber_bed/internal/models"
-	domainPlantsAPI "github.com/cyber_bed/internal/plants-api"
 	domainRecognition "github.com/cyber_bed/internal/recognize-api"
 )
 
 type usecase struct {
 	apiRecognition domainRecognition.API
-	apiPlants      domainPlantsAPI.PlantsAPI
+	apiPlants      domain.PlantsAPI
 }
 
 func New(
 	api domainRecognition.API,
-	apiPlants domainPlantsAPI.PlantsAPI,
+	apiPlants domain.PlantsAPI,
 ) domainRecognition.Usecase {
 	return usecase{
 		apiRecognition: api,

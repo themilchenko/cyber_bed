@@ -10,21 +10,16 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/cyber_bed/internal/api/convert"
+	"github.com/cyber_bed/internal/domain"
 	"github.com/cyber_bed/internal/models"
 )
-
-type PlantsAPI interface {
-	SearchByName(ctx context.Context, name string) ([]models.Plant, error)
-	SearchByID(ctx context.Context, id uint64) (models.Plant, error)
-	GetPage(ctx context.Context, pageNum uint64) ([]models.Plant, error)
-}
 
 type TrefleAPI struct {
 	baseURL      *url.URL
 	countResults int
 }
 
-func NewTrefleAPI(baseURL *url.URL, countResults int, token string) PlantsAPI {
+func NewTrefleAPI(baseURL *url.URL, countResults int, token string) domain.PlantsAPI {
 	baseURL.Query().Set("token", token)
 	q := baseURL.Query()
 	q.Set("token", token)

@@ -9,19 +9,18 @@ import (
 	httpAuth "github.com/cyber_bed/internal/auth/delivery"
 	"github.com/cyber_bed/internal/domain"
 	"github.com/cyber_bed/internal/models"
-	plants_api "github.com/cyber_bed/internal/plants-api"
 )
 
 type PlantsHandler struct {
 	plantsUsecase domain.PlantsUsecase
 	usersUsecase  domain.UsersUsecase
-	trefleAPI     plants_api.PlantsAPI
+	trefleAPI     domain.PlantsAPI
 }
 
 func NewPlantsHandler(
 	p domain.PlantsUsecase,
 	u domain.UsersUsecase,
-	pl plants_api.PlantsAPI,
+	pl domain.PlantsAPI,
 ) PlantsHandler {
 	return PlantsHandler{
 		plantsUsecase: p,

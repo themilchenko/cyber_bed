@@ -23,6 +23,10 @@ trefle_api:
   count_plants: 20
   token: "lFS3BajmCiFb4Qn20NFwLlCg8VGQh8BFboWuratD5qw"
 
+perenaul_api:
+  base_url: "https://www.perenual.com/api"
+  token: "sk-2Szd653289133ea802582"
+
 cookie_settings:
   secure: "true"
   http_only: "true"

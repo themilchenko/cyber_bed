@@ -7,15 +7,14 @@ import (
 
 	"github.com/cyber_bed/internal/domain"
 	"github.com/cyber_bed/internal/models"
-	plants_api "github.com/cyber_bed/internal/plants-api"
 )
 
 type PlantsUsecase struct {
 	plantsRepository domain.PlantsRepository
-	plantsAPI        plants_api.PlantsAPI
+	plantsAPI        domain.PlantsAPI
 }
 
-func NewPlansUsecase(p domain.PlantsRepository, api plants_api.PlantsAPI) domain.PlantsUsecase {
+func NewPlansUsecase(p domain.PlantsRepository, api domain.PlantsAPI) domain.PlantsUsecase {
 	return PlantsUsecase{
 		plantsRepository: p,
 		plantsAPI:        api,
