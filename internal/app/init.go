@@ -107,15 +107,19 @@ func (s *Server) MakeUsecases() {
 		s.Config.RecognizeAPI.CountResults,
 	)
 
-	if u, err = url.Parse(s.Config.TrefleAPI.BaseURL); err != nil {
+	// if u, err = url.Parse(s.Config.TrefleAPI.BaseURL); err != nil {
+	// 	s.Echo.Logger.Error(errors.Wrap(err, "failed to parse base url"))
+	// 	return
+	// }
+
+	if u, err = url.Parse(s.Config.PerenualAPI.BaseURL); err != nil {
 		s.Echo.Logger.Error(errors.Wrap(err, "failed to parse base url"))
 		return
 	}
 
-	s.plantsAPI = domainTrefleAPI.NewTrefleAPI(
+	s.plantsAPI = domainTrefleAPI.NewPerenualAPI(
 		u,
-		s.Config.TrefleAPI.CountPlants,
-		s.Config.TrefleAPI.Token,
+		s.Config.PerenualAPI.Token,
 	)
 
 	s.authUsecase = authUsecase.NewAuthUsecase(authDB, usersDB, s.Config.CookieSettings)

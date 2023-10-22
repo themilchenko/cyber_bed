@@ -53,7 +53,7 @@ func (t *TrefleAPI) SearchByName(
 		return nil, errors.Wrap(err, "failed to search plant by name")
 	}
 
-	return convert.InputSearchResultsToModels(resp, t.countResults), nil
+	return convert.InputSearchTrefleResultsToModels(resp, t.countResults), nil
 }
 
 func (t *TrefleAPI) SearchByID(ctx context.Context, id uint64) (models.Plant, error) {
@@ -70,7 +70,7 @@ func (t *TrefleAPI) SearchByID(ctx context.Context, id uint64) (models.Plant, er
 		Fetch(ctx); err != nil {
 		return models.Plant{}, errors.Wrap(err, "failed to search plant by id")
 	}
-	return convert.SearchItemToPlantModel(resp.Data), nil
+	return convert.SearchTrefleItemToPlantModel(resp.Data), nil
 }
 
 func (t *TrefleAPI) GetPage(ctx context.Context, pageNum uint64) ([]models.Plant, error) {
@@ -88,5 +88,5 @@ func (t *TrefleAPI) GetPage(ctx context.Context, pageNum uint64) ([]models.Plant
 		Fetch(ctx); err != nil {
 		return nil, errors.Wrap(err, "failed to get page")
 	}
-	return convert.InputSearchResultsToModels(resp, t.countResults), nil
+	return convert.InputSearchTrefleResultsToModels(resp, t.countResults), nil
 }

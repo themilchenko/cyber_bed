@@ -42,7 +42,7 @@ type Config struct {
 	PerenualAPI struct {
 		BaseURL string `yaml:"base_url"`
 		Token   string `yaml:"token"`
-	}
+	} `yaml:"perenual_api"`
 	CookieSettings CookieSettings
 }
 
