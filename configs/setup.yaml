@@ -3,7 +3,7 @@ server:
   port: 8080
 
 database:
-  user: "al.kashapov"
+  user: "postgres"
   dbname: "cyber_garden"
   host: "localhost"
   port: 5432
@@ -20,8 +20,12 @@ recognize_api:
 
 trefle_api:
   base_url: "https://trefle.io/api/v1/plants/"
-  count_plants: 5
+  count_plants: 20
   token: "lFS3BajmCiFb4Qn20NFwLlCg8VGQh8BFboWuratD5qw"
+
+perenual_api:
+  base_url: "https://www.perenual.com/api"
+  token: "sk-2Szd653289133ea802582"
 
 cookie_settings:
   secure: "true"

@@ -1,9 +1,10 @@
 package usersRepository
 
 import (
-	"github.com/cyber_bed/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/cyber_bed/internal/models"
 )
 
 type Postgres struct {
@@ -34,19 +35,18 @@ func (db *Postgres) Create(user models.User) (uint64, error) {
 	err = db.DB.Table(models.UsersInfoTable).Create(models.UsersInfo{
 		UserID:   usr.ID,
 		Password: user.Password,
-		Avatar:   user.Avatar,
 	}).Error
 	if err != nil {
 		return 0, err
 	}
 
-	return user.ID, nil
+	return usr.ID, nil
 }
 
 func (db *Postgres) GetByUsername(username string) (models.User, error) {
 	var usr models.User
 	err := db.DB.Table(models.UsersTable).
-		Select("users.id, users.username, users_info.password, users_info.avatar").
+		Select("users.id, users.username, users_info.password").
 		Joins("JOIN users_info ON users.id=users_info.user_id").
 		Where("users.username = ?", username).Last(&usr).Error
 	if err != nil {
@@ -69,20 +69,20 @@ func (db *Postgres) GetByID(id uint64) (models.User, error) {
 }
 
 func (db *Postgres) GetUserIDBySessionID(sessionID string) (uint64, error) {
-	var usrID uint64
+	var usrID models.Cookie
 	if err := db.DB.Table(models.SessionTable).
-		Select("user_id").
 		Where("value = ?", sessionID).
-		Scan(&usrID).Error; err != nil {
+		Select("user_id").
+		Last(&usrID).Error; err != nil {
 		return 0, err
 	}
-	return usrID, nil
+	return usrID.UserID, nil
 }
 
 func (db *Postgres) GetBySessionID(sessionID string) (models.User, error) {
 	var usr models.User
 	err := db.DB.Table(models.SessionTable).
-		Select("users.id, users.username, users_info.password, users_info.avatar").
+		Select("users.id, users.username, users_info.password").
 		Where(&models.Cookie{Value: sessionID}).
 		Joins("JOIN users_info ON sessions.user_id=users_info.user_id").
 		Joins("JOIN users ON sessions.user_id=users.id").Scan(&usr).Error

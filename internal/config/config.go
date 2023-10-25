@@ -39,6 +39,10 @@ type Config struct {
 		CountPlants int    `yaml:"count_plants"`
 		Token       string `yaml:"token"`
 	} `yaml:"trefle_api"`
+	PerenualAPI struct {
+		BaseURL string `yaml:"base_url"`
+		Token   string `yaml:"token"`
+	} `yaml:"perenual_api"`
 	CookieSettings CookieSettings
 }
 
@@ -115,6 +119,16 @@ func New() *Config {
 			BaseURL:     "https://{defaultHost}/api/v1/plants/",
 			CountPlants: 5,
 			Token:       "token",
+		}),
+		PerenualAPI: struct {
+			BaseURL string `yaml:"base_url"`
+			Token   string `yaml:"token"`
+		}(struct {
+			BaseURL string
+			Token   string
+		}{
+			BaseURL: "https://{defaultHost}/api/v1/plants/",
+			Token:   "token",
 		}),
 		CookieSettings: struct {
 			Secure     bool `yaml:"secure"`
